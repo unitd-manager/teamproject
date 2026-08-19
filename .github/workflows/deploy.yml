@@ -19,11 +19,14 @@ jobs:
           port: 2222
           debug: true
           script: |
-            whoami
+           whoami
             hostname
-            cd /home/team/public_html
-            git fetch origin main
-            git reset --hard origin/main
+
+            cd /home/team/public_html || exit 1
+
+            git fetch origin main || exit 1
+            git reset --hard origin/main || exit 1
+
             echo "Deployment completed successfully"
 
 
