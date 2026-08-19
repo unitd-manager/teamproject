@@ -18,8 +18,6 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /home/team/public_html
-
             git fetch origin main
             git reset --hard origin/main
-
             echo "Deployment completed successfully"
