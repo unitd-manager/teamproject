@@ -827,14 +827,41 @@ cpm.enggCrm.order.triggerCalcForAmount = function(){
 $('.editCreditNote').livequery('click', function (e){
     var title = "Edit Credit Note";
     e.preventDefault();
+    e.stopImmediatePropagation();
+
+    if ($(this).data('creditNoteEditOpening')) {
+        return;
+    }
+    $(this).data('creditNoteEditOpening', true);
+
+    $('div.popcontents').has('form#editCreditNotePortalForm').each(function(){
+        var dialog = $(this);
+        if (dialog.hasClass('ui-dialog-content')) {
+            dialog.dialog('destroy');
+        }
+        dialog.remove();
+    });
 
     var expObj = {
         validate: true
+       ,onOpenFn: function(){
+            var dialogs = $('div.popcontents').has('form#editCreditNotePortalForm');
+            dialogs.slice(0, -1).each(function(){
+                var dialog = $(this);
+                if (dialog.hasClass('ui-dialog-content')) {
+                    dialog.dialog('destroy');
+                }
+                dialog.remove();
+            });
+        }
        ,callbackOnSuccess: function(){
             var msg = 'Credit Note updated successfully';
+            var refreshTimer = setTimeout(function(){
+                window.location.assign(window.location.href);
+            }, 1500);
             Util.alert(msg, function(){
-                Util.closeAllDialogs();
-                window.location.reload(true);
+                clearTimeout(refreshTimer);
+                window.location.assign(window.location.href);
             });
         }
     }

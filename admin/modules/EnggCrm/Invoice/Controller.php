@@ -73,6 +73,10 @@ class CPL_Admin_Modules_EnggCrm_Invoice_Controller extends CP_Common_Lib_ModuleC
         return $this->view->getGenerateCreditNoteForm();
     }
 
+    function getEditCreditNoteFormSubmit() {
+        return $this->model->getEditCreditNoteFormSubmit();
+    }
+
     function getGenerateCreditNoteFormSubmit() {
         return $this->model->getGenerateCreditNoteFormSubmit();
     }

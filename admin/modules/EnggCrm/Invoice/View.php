@@ -2154,4 +2154,97 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
 
         return $text;
     }
+
+    function getEditCreditNoteForm() {
+         error_log('[InvoiceView] getEditCreditNoteForm CALLED');
+        $fn = Zend_Registry::get('fn');
+        $db = Zend_Registry::get('db');
+        $formObj = Zend_Registry::get('formObj');
+
+        $creditNoteId = $fn->getReqParam('credit_note_id');
+        $orderId = $fn->getReqParam('order_id');
+
+        $creditNote = $fn->getRecordRowByID('credit_note', 'credit_note_id', $creditNoteId);
+        $rows = '';
+        $sql = "
+          SELECT SQL_NO_CACHE icnh.invoice_credit_note_history_id
+              ,icnh.invoice_id
+              ,icnh.item_title
+              ,icnh.description
+              ,icnh.amount
+              ,i.invoice_amount
+              ,i.invoice_code
+        FROM invoice_credit_note_history icnh
+        LEFT JOIN invoice i ON (i.invoice_id = icnh.invoice_id)
+        WHERE icnh.credit_note_id = {$creditNoteId}
+        ORDER BY icnh.invoice_credit_note_history_id
+        ";
+        $result = $db->sql_query($sql);
+        while ($row = $db->sql_fetchrow($result)) {
+            $historyId = $row['invoice_credit_note_history_id'];
+          $rows .= "
+<tr>
+    <td width='15%'>
+        {$row['invoice_code']}
+        <input type='hidden' name='history_id[]' value='{$historyId}' />
+        <input type='hidden' name='invoice_id[]' value='{$row['invoice_id']}' />
+    </td>
+
+    <td width='15%'>{$row['invoice_amount']}</td>
+
+    <td width='15%'>
+        <textarea
+            name='title[]'
+            style='width:100%;'
+        >{$row['item_title']}</textarea>
+    </td>
+
+    <td width='35%'>
+        <textarea
+            name='description[]'
+            style='width:100%;'
+        >{$row['description']}</textarea>
+    </td>
+
+    <td width='20%'>
+        <input
+            type='text'
+            value='{$row['amount']}'
+            class='text creditNoteAmount'
+            name='amount[]'
+            style='width:100%;'
+        >
+    </td>
+</tr>
+            ";
+        }
+
+        $formAction = "index.php?module=enggCrm_invoice&_spAction=editCreditNoteFormSubmit&showHTML=0";
+        $expEdit = array('isEditable' => 0);
+        $text = "
+        <form id='editCreditNotePortalForm' class='yform columnar creditNoteForm' method='post' action='{$formAction}'>
+            <div class=''>{$formObj->getTBRow('', 'error_box', '', $expEdit)}</div>
+            <table class='thinlist room-order-table' style='width:100%; table-layout:fixed;'>
+                <thead>
+                    <tr>
+                        <th width='15%'>Invoice Code</th>
+                        <th width='15%'>Amount</th>
+                        <th width='15%'>Title</th>
+                        <th width='35%'>Description</th>
+                        <th width='20%'>Credit Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {$rows}
+                </tbody>
+            </table>
+            {$formObj->getDateRow('Date', 'date', $creditNote['date'])}
+            {$formObj->getTextAreaRow('Note', 'remarks', $creditNote['remarks'])}
+            <input type='hidden' name='credit_note_id' value='{$creditNoteId}' />
+            <input type='hidden' name='order_id' value='{$orderId}' />
+        </form>
+        ";
+
+        return $text;
+    }
 }

@@ -3886,6 +3886,8 @@ switch ($site_id) {
         while ($rowCn = $db->sql_fetchrow($result)) {
 
             $urlPrint = "index.php?_topRm=finance&module=enggCrm_order&_spAction=printCreditNote&credit_note_id={$rowCn['credit_note_id']}&order_id={$row['order_id']}&showHTML=0";
+            $editCreditNoteURL = "index.php?_topRm=finance&module=enggCrm_order&_spAction=editCreditNoteForm&showHTML=0&credit_note_id={$rowCn['credit_note_id']}&order_id={$row['order_id']}";
+            $creditNoteEditLink = "<a href='{$editCreditNoteURL}' order_id='{$row['order_id']}' class='editCreditNote'><u>Edit</u></a>";
 
             $credit_note_date = $fn->getCPDate($rowCn['date'], 'd-m-Y');
 
@@ -3903,6 +3905,7 @@ switch ($site_id) {
                 <td>{$credit_note_date}</td>
                 <td class='txtRight'>{$totalvalueRounded}</td>
                 <td><a href='{$urlPrint}' target='_blank'><u>Print Credit Note</u></a></td>
+                <td>{$creditNoteEditLink}</td>
             </tr>
             ";
         }
@@ -3913,6 +3916,7 @@ switch ($site_id) {
             <th>Date</th>
             <th class='txtRight'>Amount</th>
             <th>Print</th>
+            <th>Edit</th>
         </tr>
         ";
 

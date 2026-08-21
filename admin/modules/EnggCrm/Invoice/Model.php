@@ -2192,6 +2192,80 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
         return $validate->getSuccessMessageXML();
     }
 
+    function getEditCreditNoteFormSubmit() {
+        $fn = Zend_Registry::get('fn');
+        $db = Zend_Registry::get('db');
+        $dbUtil = Zend_Registry::get('dbUtil');
+        $validate = Zend_Registry::get('validate');
+
+        $creditNoteId = $fn->getPostParam('credit_note_id');
+        $date = $fn->getPostParam('date');
+        $remarks = $fn->getPostParam('remarks');
+        $historyIds = $fn->getPostParam('history_id', array(), false, true);
+        $invoiceIds = $fn->getPostParam('invoice_id', array(), false, true);
+        $titles = $fn->getPostParam('title', array(), false, true);
+        $descriptions = $fn->getPostParam('description', array(), false, true);
+        $amounts = $fn->getPostParam('amount', array(), false, true);
+        $gstPercentage = $fn->getSettingsValueByKey('cp.gstPercentage');
+
+        $validate->resetErrorArray();
+        $validate->validateData('date', 'Please select the date');
+        foreach ($amounts as $index => $amount) {
+            if ((float) $amount > 0 && isset($invoiceIds[$index])) {
+                $invoiceRec = $fn->getRecordRowByID('invoice', 'invoice_id', $invoiceIds[$index]);
+                if ((float) $amount > (float) $invoiceRec['invoice_amount']) {
+                    $validate->validateData('error_box', 'Please enter the credit note amount within the invoice amount');
+                }
+            }
+        }
+        if (count($validate->errorArray) > 0) {
+            return $validate->getErrorMessageXML();
+        }
+
+        $creditNoteData = array(
+            'date' => $date,
+            'remarks' => $remarks
+        );
+        $creditNoteData = $fn->addModificationDetailsToFieldsArray($creditNoteData, 'credit_note');
+        $updateSql = $dbUtil->getUpdateSQLStringFromArray($creditNoteData, 'credit_note', "WHERE credit_note_id = {$creditNoteId}");
+        $db->sql_query($updateSql);
+
+        $totalAmount = 0;
+        foreach ($historyIds as $index => $historyId) {
+            if ($historyId == '') {
+                continue;
+            }
+
+            $amount = isset($amounts[$index]) ? $amounts[$index] : 0;
+            $historyData = array(
+                'item_title' => isset($titles[$index]) ? $titles[$index] : '',
+                'description' => isset($descriptions[$index]) ? $descriptions[$index] : '',
+                'amount' => $amount,
+                'gst_percentage' => $gstPercentage
+            );
+            $historyData = $fn->addModificationDetailsToFieldsArray($historyData, 'invoice_credit_note_history');
+            $historyUpdateSql = $dbUtil->getUpdateSQLStringFromArray($historyData, 'invoice_credit_note_history', "WHERE invoice_credit_note_history_id = {$historyId}");
+            $db->sql_query($historyUpdateSql);
+            $historyAffectedRows = $db->sql_affectedrows();
+
+            if ($historyAffectedRows == 0 && isset($invoiceIds[$index])) {
+                $historyUpdateSql = $dbUtil->getUpdateSQLStringFromArray($historyData, 'invoice_credit_note_history', "WHERE credit_note_id = {$creditNoteId} AND invoice_id = {$invoiceIds[$index]}");
+                $db->sql_query($historyUpdateSql);
+            }
+            $totalAmount += (float) $amount;
+        }
+
+        $creditNoteData = array(
+            'amount' => $totalAmount,
+            'gst_percentage' => 0,
+            'gst_amount' => round(($totalAmount * $gstPercentage) / 100, 2)
+        );
+        $updateSql = $dbUtil->getUpdateSQLStringFromArray($creditNoteData, 'credit_note', "WHERE credit_note_id = {$creditNoteId}");
+        $db->sql_query($updateSql);
+
+        return $validate->getSuccessMessageXML();
+    }
+
     /**
      *
      */

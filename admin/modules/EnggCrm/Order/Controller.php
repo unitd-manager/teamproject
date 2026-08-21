@@ -103,6 +103,11 @@ class CPL_Admin_Modules_EnggCrm_Order_Controller extends CP_Common_Lib_ModuleCon
         return $modObj->view->getEditInvoiceForm2();
     }
 
+    function getEditCreditNoteForm() {
+        $modObj = getCPModuleObj('enggCrm_invoice');
+        return $modObj->view->getEditCreditNoteForm();
+    }
+
     function getPrintBill() {
         $modObj = getCPModuleObj('enggCrm_pos');
         return $modObj->view->getEditInvoiceForm();
