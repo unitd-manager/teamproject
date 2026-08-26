@@ -1722,6 +1722,19 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
         $faInv = $fn->addModificationDetailsToFieldsArray($faInv, 'invoice');
         $fn->saveRecord($faInv, 'invoice', 'invoice_id', $invoice_id);
 
+                $removed_invoice_item_ids = isset($_POST['removed_invoice_item_ids']) ? $_POST['removed_invoice_item_ids'] : array();
+                foreach ($removed_invoice_item_ids as $removed_invoice_item_id) {
+                        $removed_invoice_item_id = (int) $removed_invoice_item_id;
+                        if ($removed_invoice_item_id > 0) {
+                                $SQL = "
+                                DELETE FROM invoice_item
+                                WHERE invoice_item_id = {$removed_invoice_item_id}
+                                    AND invoice_id = {$invoice_id}
+                                ";
+                                $db->sql_query($SQL);
+                        }
+                }
+
         foreach($_POST AS $key => $val){
             if (substr($key, 0, 5) == 'title'){
                 $invoice_item_arr = explode('_', $key);
@@ -1741,7 +1754,7 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
             if (substr($key, 0, 9) == 'unitprice'){
                 $invoice_item_arr = explode('_', $key);
                 $invoice_item_id = $invoice_item_arr[1];
-                $unitprice = $val;
+                $unitprice = trim((string) $val) === '' ? 0 : $val;
 
                 $invoiceItemRec = $fn->getRecordRowByID('invoice_item', 'invoice_item_id', $invoice_item_id);
                 if ($invoiceItemRec['unit_price'] != $unitprice) {
@@ -1756,7 +1769,7 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
             if (substr($key, 0, 3) == 'qty'){
                 $invoice_item_arr = explode('_', $key);
                 $invoice_item_id = $invoice_item_arr[1];
-                $qty = $val;
+                $qty = trim((string) $val) === '' ? 0 : $val;
 
                 $invoiceItemRec = $fn->getRecordRowByID('invoice_item', 'invoice_item_id', $invoice_item_id);
                 if ($invoiceItemRec['qty'] != $qty) {
@@ -1784,7 +1797,7 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
             if (substr($key, 0, 6) == 'amount'){
                 $invoice_item_arr = explode('_', $key);
                 $invoice_item_id = $invoice_item_arr[1];
-                $amount = $val;
+                $amount = trim((string) $val) === '' ? 0 : $val;
 
                 $invoiceItemRec = $fn->getRecordRowByID('invoice_item', 'invoice_item_id', $invoice_item_id);
                 if ($invoiceItemRec['amount'] != $amount) {

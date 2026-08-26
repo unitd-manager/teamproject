@@ -1728,7 +1728,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
                 <td><input type='text' value='{$totalCost}' id='amount' class='text invoiceAmount' name='amount_{$invoice_item_id}'></td>
                 <td>{$formObj->getDDRowByArr('', 'addminus_'.$invoice_item_id, $addSubArr, $rowIi['add_minus'])}</td>
 
-                <td class='text'><a class='clearInvoiceItemEdit'><u>Clear</u></a></td>
+                <td class='text'><a class='clearInvoiceItemEdit' data-invoice-item-id='{$invoice_item_id}'><u>Remove</u></a></td>
             </tr>
             ";
         }
@@ -1858,7 +1858,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
                 <td><input type='text' value='{$rowIi['qty']}' id='qty' class='text invoiceQuantity' name='qty_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$rowIi['unit_price']}' id='unit_price' class='text invoiceUnitPrice' name='unitprice_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$totalCost}' id='amount' class='text invoiceAmount' name='amount_{$invoice_item_id}'></td>
-                <td class='text'><a class='clearInvoiceItemEdit'><u>Clear</u></a></td>
+                <td class='text'><a class='clearInvoiceItemEdit' data-invoice-item-id='{$invoice_item_id}'><u>Remove</u></a></td>
             </tr>
             ";
         }
@@ -1983,7 +1983,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
                 <td><input type='text' value='{$rowIi['qty']}' id='qty' class='text invoiceQuantity' name='qty_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$rowIi['unit_price']}' id='unit_price' class='text invoiceUnitPrice' name='unitprice_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$totalCost}' id='amount' class='text invoiceAmount' name='amount_{$invoice_item_id}'></td>
-                <td class='text'><a class='clearInvoiceItemEdit'><u>Clear</u></a></td>
+                <td class='text'><a class='clearInvoiceItemEdit' data-invoice-item-id='{$invoice_item_id}'><u>Remove</u></a></td>
             </tr>
             ";
         }

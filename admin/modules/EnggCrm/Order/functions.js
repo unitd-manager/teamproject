@@ -39,6 +39,26 @@ cpm.enggCrm.order = {
                 totalCostObj.val(totalCostFormatted); // Assuming invoiceAmount is an input field
             }
         });
+
+        $("a.clearInvoiceItemEdit").livequery('click', function (e){
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            var row = $(this).closest('tr');
+            var invoiceItemId = $(this).attr('data-invoice-item-id');
+            $('<input>', {
+                type: 'hidden',
+                name: 'removed_invoice_item_ids[]',
+                value: invoiceItemId
+            }).appendTo('#editInvoicePortalForm');
+
+            row.find('textarea[name^="title_"]').val('');
+            row.find('textarea[name^="description_"]').val('');
+            row.find('.invoiceUnit, .invoiceQuantity, .invoiceUnitPrice, .invoiceAmount').val('');
+            row.remove();
+
+            return false;
+        });
         
 
         $(".m-enggCrm_order a.generateInvoiceorder").livequery('click', function (e){
