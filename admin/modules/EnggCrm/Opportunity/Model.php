@@ -938,7 +938,7 @@ class CPL_Admin_Modules_EnggCrm_Opportunity_Model extends CP_Admin_Modules_EnggC
         SELECT company_id
               ,company_name
         FROM company
-        ORDER BY company_id DESC
+        ORDER BY company_name ASC
         ";
         $result   = $db->sql_query($SQL);
 

@@ -184,8 +184,11 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
         $newCompUrl = 'index.php?_spAction=new&lnkRoom=enggCrm_companyLink&showHTML=0';
         $newCompUrl = "<a class='jqui-dialog-form float_left' formId='portalForm' title='New Company'
         w=800 href='' link='{$newCompUrl}' callback='cpm.enggCrm.order.afterNewCompany'>New</a>";
+        $editCompUrl = 'index.php?module=enggCrm_order&_spAction=editCompanyName&showHTML=0';
+           $editCompUrl = "<a class='jqui-dialog-form float_left editCompanyLink' formId='portalForm' title='Edit Company'
+           w=800 href='' link='{$editCompUrl}' callback='cpm.enggCrm.order.afterEditCompany'>Edit</a>";
         $expComp  = array(
-             'notesRight'  => $newCompUrl
+               'notesRight'  => $newCompUrl . ' ' . $editCompUrl
             ,'autoSgstModule' => 'enggCrm_company'
             ,'autoSgstSrchFld' => 'company_name'
             ,'autoSgstActualFld' => 'company_id'
@@ -220,6 +223,22 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
         ";
 
         return $text;
+    }
+
+    function getEditCompanyName(){
+        $fn = Zend_Registry::get('fn');
+        $formObj = Zend_Registry::get('formObj');
+
+        $company_id = $fn->getReqParam('company_id');
+        $company = $fn->getRecordRowByID('company', 'company_id', $company_id);
+        $formAction = "index.php?module=enggCrm_order&_spAction=editCompanyNameSubmit&showHTML=0";
+
+        return "
+        <form id='portalForm' class='yform columnar' method='post' action='{$formAction}'>
+            {$formObj->getTBRow('Company Name', 'company_name', $company['company_name'])}
+            <input type='hidden' name='company_id' value='{$company_id}' />
+        </form>
+        ";
     }
 
     /**

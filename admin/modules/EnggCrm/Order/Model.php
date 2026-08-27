@@ -266,6 +266,32 @@ class CPL_Admin_Modules_EnggCrm_Order_Model extends CP_Common_Lib_ModuleModelAbs
         $fn->returnAfterNewSave($id);
     }
 
+    function getEditCompanyNameSubmit(){
+        $fn = Zend_Registry::get('fn');
+        $validate = Zend_Registry::get('validate');
+
+        $company_id = (int) $fn->getPostParam('company_id');
+        $company_name = trim($fn->getPostParam('company_name'));
+        $validate->resetErrorArray();
+
+        if ($company_id <= 0) {
+            $validate->errorArray['company_id']['name'] = 'company_id';
+            $validate->errorArray['company_id']['msg'] = 'Please select a company first';
+            return $validate->getErrorMessageXML();
+        }
+
+        if ($company_name == '') {
+            $validate->errorArray['company_name']['name'] = 'company_name';
+            $validate->errorArray['company_name']['msg'] = 'Please enter the company name';
+            return $validate->getErrorMessageXML();
+        }
+
+        $fa = array('company_name' => $company_name);
+        $fn->saveRecord($fa, 'company', 'company_id', $company_id);
+
+        return $validate->getSuccessMessageXML();
+    }
+
     /**
      *
      */

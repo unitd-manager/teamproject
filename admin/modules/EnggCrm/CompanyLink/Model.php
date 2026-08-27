@@ -8,6 +8,7 @@ class CPL_Admin_Modules_EnggCrm_CompanyLink_Model extends CP_Admin_Modules_EnggC
         $tv = Zend_Registry::get('tv');
         $fn = Zend_Registry::get('fn');
         $searchVar = Zend_Registry::get('searchVar');
+        $searchVar->mainTableAlias = 'a';
 
         $category     = $fn->getReqParam('category');
         $status       = $fn->getReqParam('status');

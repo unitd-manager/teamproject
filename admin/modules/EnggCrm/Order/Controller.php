@@ -20,6 +20,14 @@ class CPL_Admin_Modules_EnggCrm_Order_Controller extends CP_Common_Lib_ModuleCon
         return $this->model->getProjectByCompanyJSON();
     }
 
+    function getEditCompanyName() {
+        return $this->view->getEditCompanyName();
+    }
+
+    function getEditCompanyNameSubmit() {
+        return $this->model->getEditCompanyNameSubmit();
+    }
+
     function getPrintDeliveryOrder() {
         return $this->view->getPrintDeliveryOrder();
     }

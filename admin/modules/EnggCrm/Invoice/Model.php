@@ -776,6 +776,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_Model extends CP_Admin_Modules_EnggCrm_I
         $tv = Zend_Registry::get('tv');
         $fn = Zend_Registry::get('fn');
         $db = Zend_Registry::get('db');
+        $dbUtil = Zend_Registry::get('dbUtil');
         $searchVar = Zend_Registry::get('searchVar');
         $media = Zend_Registry::get('media');
         $cpPaths = Zend_Registry::get('cpPaths');
@@ -1672,6 +1673,7 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
     function getEditInvoiceFormSubmit() {
         $fn = Zend_Registry::get('fn');
         $db = Zend_Registry::get('db');
+        $dbUtil = Zend_Registry::get('dbUtil');
         $cpCfg = Zend_Registry::get('cpCfg');
         $validate = Zend_Registry::get('validate');
 
@@ -1680,6 +1682,8 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
         }
 
         $invoice_id             = $fn->getReqParam('invoice_id');
+        $invoiceRec             = $fn->getRecordRowByID('invoice', 'invoice_id', $invoice_id);
+        $order_id               = $invoiceRec['order_id'];
         $invoice_date           = $fn->getPostParam('invoice_date');
         $invoice_due_date       = $fn->getPostParam('invoice_due_date');
         $invoice_title          = $fn->getPostParam('invoice_title');
@@ -1722,6 +1726,35 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
         $faInv = $fn->addModificationDetailsToFieldsArray($faInv, 'invoice');
         $fn->saveRecord($faInv, 'invoice', 'invoice_id', $invoice_id);
 
+        $orderRec = $fn->getRecordRowByID('order', 'order_id', $order_id);
+        $new_titles = isset($_POST['new_title']) ? $_POST['new_title'] : array();
+        $new_descriptions = isset($_POST['new_description']) ? $_POST['new_description'] : array();
+        $new_units = isset($_POST['new_unit']) ? $_POST['new_unit'] : array();
+        $new_quantities = isset($_POST['new_qty']) ? $_POST['new_qty'] : array();
+        $new_unitprices = isset($_POST['new_unitprice']) ? $_POST['new_unitprice'] : array();
+        $new_amounts = isset($_POST['new_amount']) ? $_POST['new_amount'] : array();
+        $new_addminus = isset($_POST['new_addminus']) ? $_POST['new_addminus'] : array();
+        $new_item_count = count($new_titles);
+        for ($i = 0; $i < $new_item_count; $i++) {
+            $new_title = isset($new_titles[$i]) ? trim($new_titles[$i]) : '';
+            $new_description = isset($new_descriptions[$i]) ? trim($new_descriptions[$i]) : '';
+            if ($new_title !== '' || $new_description !== '') {
+                $new_item = array(
+                    'invoice_id' => $invoice_id,
+                    'site_id' => $orderRec['site_id'],
+                    'item_title' => $new_title,
+                    'description' => $new_description,
+                    'unit' => isset($new_units[$i]) ? $new_units[$i] : '',
+                    'qty' => isset($new_quantities[$i]) && trim((string) $new_quantities[$i]) !== '' ? $new_quantities[$i] : 0,
+                    'unit_price' => isset($new_unitprices[$i]) && trim((string) $new_unitprices[$i]) !== '' ? $new_unitprices[$i] : 0,
+                    'amount' => isset($new_amounts[$i]) && trim((string) $new_amounts[$i]) !== '' ? $new_amounts[$i] : 0,
+                    'add_minus' => isset($new_addminus[$i]) ? $new_addminus[$i] : 'Add'
+                );
+                $insert = $dbUtil->getInsertSQLStringFromArray($new_item, 'invoice_item');
+                $db->sql_query($insert);
+            }
+        }
+
                 $removed_invoice_item_ids = isset($_POST['removed_invoice_item_ids']) ? $_POST['removed_invoice_item_ids'] : array();
                 foreach ($removed_invoice_item_ids as $removed_invoice_item_id) {
                         $removed_invoice_item_id = (int) $removed_invoice_item_id;
@@ -1760,6 +1793,20 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
                 if ($invoiceItemRec['unit_price'] != $unitprice) {
                     $faIi = array();
                     $faIi['unit_price'] = $unitprice;
+                    $faIi = $fn->addModificationDetailsToFieldsArray($faIi, 'invoice_item');
+                    $fn->saveRecord($faIi, 'invoice_item', 'invoice_item_id', $invoice_item_id);
+                }
+            }
+
+            if (substr($key, 0, 5) == 'unit_'){
+                $invoice_item_arr = explode('_', $key);
+                $invoice_item_id = $invoice_item_arr[1];
+                $unit = $val;
+
+                $invoiceItemRec = $fn->getRecordRowByID('invoice_item', 'invoice_item_id', $invoice_item_id);
+                if ($invoiceItemRec['unit'] != $unit) {
+                    $faIi = array();
+                    $faIi['unit'] = $unit;
                     $faIi = $fn->addModificationDetailsToFieldsArray($faIi, 'invoice_item');
                     $fn->saveRecord($faIi, 'invoice_item', 'invoice_item_id', $invoice_item_id);
                 }

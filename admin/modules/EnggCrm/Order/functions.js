@@ -2,6 +2,11 @@ Util.createCPObject('cpm.enggCrm.order');
 
 cpm.enggCrm.order = {
     init: function(){
+        $("#portalForm input[name=company_name]").livequery(function(){
+            this.focus();
+            this.setSelectionRange(this.value.length, this.value.length);
+        });
+
         $('.m-enggCrm_order input.invoiceCode').livequery('click', function (e){
             Util.showProgressInd();
             invoice_code = $(this).val();
@@ -57,6 +62,19 @@ cpm.enggCrm.order = {
             row.find('.invoiceUnit, .invoiceQuantity, .invoiceUnitPrice, .invoiceAmount').val('');
             row.remove();
 
+            return false;
+        });
+
+        $("#editInvoicePortalForm a.addInvoiceItem").livequery('click', function (e){
+            e.preventDefault();
+            var row = $('<tr><td><textarea name="new_title[]"></textarea></td><td><textarea name="new_description[]"></textarea></td><td><input type="text" class="text invoiceUnit" name="new_unit[]"></td><td><input type="text" class="text invoiceQuantity" name="new_qty[]"></td><td><input type="text" class="text invoiceUnitPrice" name="new_unitprice[]"></td><td><input type="text" class="text invoiceAmount" name="new_amount[]"></td><td><select name="new_addminus[]"><option value="Add">Add</option><option value="Minus">Minus</option></select></td><td class="text"><a href="#" class="removeNewInvoiceItem"><u>Remove</u></a></td></tr>');
+            $(this).closest('form').find('table.thinlist tr:last').after(row);
+            return false;
+        });
+
+        $("#editInvoicePortalForm a.removeNewInvoiceItem").livequery('click', function (e){
+            e.preventDefault();
+            $(this).closest('tr').remove();
             return false;
         });
         
@@ -688,8 +706,32 @@ $("a.newContactLink").livequery('click', function (e){
 
 });
 
+$("a.editCompanyLink").livequery('click', function (e){
+    var company_id = $('#fld_company_id').val();
+    if (!company_id || company_id == '0') {
+        e.stopImmediatePropagation();
+        $(this).attr('link', '#');
+        $(this).attr('href', '#');
+        e.preventDefault();
+        alert('Please select a company first');
+        return false;
+    }
+
+    var url = 'index.php?module=enggCrm_order&_spAction=editCompanyName&showHTML=0&company_id=' + company_id;
+    cpm.enggCrm.order.editingCompanyId = company_id;
+    $(this).attr('href', url);
+    $(this).attr('link', url);
+});
+
 $('select#fld_company_id').change(function() {
     var company_id = $(this).val();
+    var editCompanyUrl = 'index.php?module=enggCrm_order&_spAction=editCompanyName&showHTML=0';
+    if (company_id && company_id != '0') {
+        editCompanyUrl += '&company_id=' + company_id;
+    } else {
+        editCompanyUrl = '#';
+    }
+    $('a.editCompanyLink').attr('link', editCompanyUrl);
 
     var url = 'index.php?module=enggCrm_contact&_spAction=contactByCompanyJSON&showHTML=0';
     $.get(url, {company_id: company_id}, function (data) {
@@ -788,10 +830,13 @@ cpm.enggCrm.order.loadContactsByCompany = function(){
     }, 'json');
 }
 
-cpm.enggCrm.order.loadCompany = function(){
+cpm.enggCrm.order.loadCompany = function(callback){
     var url = 'index.php?module=enggCrm_opportunity&_spAction=newCompanyJSON&showHTML=0';
     $.get(url, function (data) {
         $('#fld_company_id').cp_loadSelect(data);
+        if (callback) {
+            callback();
+        }
     }, 'json');
 }
 
@@ -799,6 +844,23 @@ cpm.enggCrm.order.afterNewCompany = function(data){
     Util.closeAllDialogs();
     cpm.enggCrm.order.loadCompany();
     var mgsalert = 'New company successfully created!';
+    var n = noty({
+        text: mgsalert,
+        type: 'confirm',
+        dismissQueue: true,
+        layout: 'topCenter',
+        theme: 'defaultTheme',
+        timeout: 5000,
+    });
+}
+
+cpm.enggCrm.order.afterEditCompany = function(data){
+    var company_id = cpm.enggCrm.order.editingCompanyId;
+    Util.closeAllDialogs();
+    cpm.enggCrm.order.loadCompany(function(){
+        $('#fld_company_id').val(company_id).trigger('change');
+    });
+    var mgsalert = 'Company updated successfully!';
     var n = noty({
         text: mgsalert,
         type: 'confirm',

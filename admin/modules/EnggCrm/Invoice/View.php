@@ -1704,7 +1704,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
 
         $rows = '';
         $sqlIi = "
-        SELECT invoice_item_id, item_title, description,qty,unit_price,amount,add_minus
+        SELECT invoice_item_id, item_title, description,unit,qty,unit_price,amount,add_minus
         FROM invoice_item
         WHERE invoice_id = {$invoice_id}
         ";
@@ -1723,6 +1723,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
             <tr>
                 <td><textarea id='title' name='title_{$invoice_item_id}'>{$rowIi['item_title']}</textarea></td>
                 <td><textarea id='description' name='description_{$invoice_item_id}'>{$rowIi['description']}</textarea></td>
+                <td><input type='text' value='{$rowIi['unit']}' class='text invoiceUnit' name='unit_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$rowIi['qty']}' id='qty' class='text invoiceQuantity' name='qty_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$rowIi['unit_price']}' id='unit_price' class='text invoiceUnitPrice' name='unitprice_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$totalCost}' id='amount' class='text invoiceAmount' name='amount_{$invoice_item_id}'></td>
@@ -1810,6 +1811,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
                 <tr style='background-color:#EAEAE8;'>
                     <th>Title</th>
                     <th>Description</th>
+                    <th>UoM</th>
                     <th>Qty</th>
                     <th>Unit Price</th>
                     <th>Amount</th>
@@ -1818,6 +1820,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
                 </tr>
                 {$rows}
             </table>
+            <a class='addInvoiceItem btn btn-primary mb10'>Add Invoice Item</a>
             <input type='hidden' name='invoice_id' value='{$invoice_id}' />
         </form>
         ";
@@ -1841,7 +1844,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
 
         $rows = '';
         $sqlIi = "
-        SELECT invoice_item_id, item_title, description,qty,unit_price,amount
+        SELECT invoice_item_id, item_title, description,unit,qty,unit_price,amount
         FROM invoice_item
         WHERE invoice_id = {$invoice_id}
         ";
@@ -1855,6 +1858,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
             <tr>
                 <td><textarea id='title' name='title_{$invoice_item_id}'>{$rowIi['item_title']}</textarea></td>
                 <td><textarea id='description' name='description_{$invoice_item_id}'>{$rowIi['description']}</textarea></td>
+                <td><input type='text' value='{$rowIi['unit']}' class='text invoiceUnit' name='unit_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$rowIi['qty']}' id='qty' class='text invoiceQuantity' name='qty_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$rowIi['unit_price']}' id='unit_price' class='text invoiceUnitPrice' name='unitprice_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$totalCost}' id='amount' class='text invoiceAmount' name='amount_{$invoice_item_id}'></td>
@@ -1936,6 +1940,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
                 <tr style='background-color:#EAEAE8;'>
                     <th>Tle</th>
                     <th>Description</th>
+                    <th>UoM</th>
                     <th>Qty</th>
                     <th>Unit Price</th>
                     <th>Amount</th>
@@ -1966,7 +1971,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
 
         $rows = '';
         $sqlIi = "
-        SELECT invoice_item_id, item_title, description,qty,unit_price,amount
+        SELECT invoice_item_id, item_title, description,unit,qty,unit_price,amount
         FROM invoice_item
         WHERE invoice_id = {$invoice_id}
         ";
@@ -1980,6 +1985,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
             <tr>
                 <td><textarea id='title' name='title_{$invoice_item_id}'>{$rowIi['item_title']}</textarea></td>
                 <td><textarea id='description' name='description_{$invoice_item_id}'>{$rowIi['description']}</textarea></td>
+                <td><input type='text' value='{$rowIi['unit']}' class='text invoiceUnit' name='unit_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$rowIi['qty']}' id='qty' class='text invoiceQuantity' name='qty_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$rowIi['unit_price']}' id='unit_price' class='text invoiceUnitPrice' name='unitprice_{$invoice_item_id}'></td>
                 <td><input type='text' value='{$totalCost}' id='amount' class='text invoiceAmount' name='amount_{$invoice_item_id}'></td>
@@ -2061,6 +2067,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
                 <tr style='background-color:#EAEAE8;'>
                     <th>Title</th>
                     <th>Description</th>
+                    <th>UoM</th>
                     <th>Qty</th>
                     <th>Unit Price</th>
                     <th>Amount</th>
