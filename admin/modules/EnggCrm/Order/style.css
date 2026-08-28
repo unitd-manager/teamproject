@@ -35,6 +35,14 @@
 		display: block !important;
 	}
 
+	.companyNameWithActions select {
+		width: 60% !important;
+	}
+
+	.companyNameWithActions .formFieldNotesRight {
+		white-space: nowrap;
+	}
+
 	.generateInvoiceForm.columnar div.type-select select,
 	.invoiceEditForm.columnar div.type-select select{
 		width: 100% !important;

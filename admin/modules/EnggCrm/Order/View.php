@@ -189,6 +189,7 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
            w=800 href='' link='{$editCompUrl}' callback='cpm.enggCrm.order.afterEditCompany'>Edit</a>";
         $expComp  = array(
                'notesRight'  => $newCompUrl . ' ' . $editCompUrl
+            ,'rowCls' => 'companyNameWithActions'
             ,'autoSgstModule' => 'enggCrm_company'
             ,'autoSgstSrchFld' => 'company_name'
             ,'autoSgstActualFld' => 'company_id'
@@ -694,8 +695,8 @@ switch ($site_id) {
                         <tr >
                             <th width="6%"  align="center" style="font-size:10px; font-weight:bold;border:1px solid #000;">S. NO.</th>
                             <th width="55%" align="center" style="border:1px solid #000;font-size:10px; font-weight:bold;">JOB DESCRIPTION</th>
-                            <th width="7%"  align="center" style="border:1px solid #000;font-size:10px; font-weight:bold;">QTY</th>
                             <th width="7%"  align="center" style="border:1px solid #000;font-size:10px; font-weight:bold;">UOM</th>
+                            <th width="7%"  align="center" style="border:1px solid #000;font-size:10px; font-weight:bold;">QTY</th>
                             <th width="12%" align="center" style="border:1px solid #000;font-size:10px; font-weight:bold;">UNIT PRICE('.$currency.')</th>
                             <th width="13%" align="center" style="border:1px solid #000;font-size:10px; font-weight:bold;">TOTAL PRICE('.$currency.')</th>
                         </tr>
@@ -758,8 +759,8 @@ switch ($site_id) {
             $tbl3 = $tbl3.'<tr>
                                 <td width="6%"  style="border-left:1px solid #000;border-right:1px solid #000;font-size:10px;" align="center">'.$count.'</td>
                                 <td width="55%" style="border-left:1px solid #000;border-right:1px solid #000;font-size:10px;">'.nl2br($row['description']).'</td>
-                                <td width="7%"  align="center" style="font-size:10px;border-left:1px solid #000;border-right:1px solid #000;">'.$row['qty'].'</td>
                                 <td width="7%"  align="center" style="font-size:10px;border-left:1px solid #000;border-right:1px solid #000;">'.$row['unit'].'</td>
+                                <td width="7%"  align="center" style="font-size:10px;border-left:1px solid #000;border-right:1px solid #000;">'.$row['qty'].'</td>
                                 <td width="12%" align="center" style="font-size:10px;border-left:1px solid #000;border-right:1px solid #000;">'.$row['unit_price'].'</td>
                                 <td width="13%" align="right" style="font-size:10px;border-right:1px solid #000;">'.$subtotal_amount_formatted.'</td>
                             </tr>
@@ -771,7 +772,7 @@ switch ($site_id) {
             $countCheck++;
         }
 
-        $totalvalue        = $totalvalue - $company['discount'];
+        $totalvalue        = round($totalvalue - $company['discount'], 0);
         $amount_in_words   = $fn->getConvertNumber($totalvalue);
       
         $discountRow = '';
@@ -797,7 +798,7 @@ switch ($site_id) {
             $tbl3 = $tbl3.''.$discountRow.'<tr>
                               <td colspan="2" style="font-size:10px; border:1px solid #000;border-right:1px solid #000;">Invoice Amount In '.$currency.' : '.$amount_in_words.'</td>
                             
-                              <td align="right" colspan="4" style="font-size:10px; font-weight:bold; border:1px solid #000;">'.number_format($totalvalue, 3).'</td>
+                              <td align="right" colspan="4" style="font-size:10px; font-weight:bold; border:1px solid #000;">'.number_format($totalvalue, 0).'</td>
                           </tr>
                          
                           
@@ -806,7 +807,7 @@ switch ($site_id) {
             $tbl3 = $tbl3.''.$discountRow.'<tr>
                               <td align="right" colspan="2" style="font-size:10px; font-weight:bold; border:1px solid #000;border-right:1px solid #000;">Invoice Amount In '.$currency.' : '.$amount_in_words.'</td>
                               <td colspan="3" align="right" style="font-size:10px; border-top:1px solid #000;border-right:1px solid #000; border-top:1px solid #000; border-bottom:1px solid #000; font-weight:bold;">Total Excluding Gst</td>
-                              <td align="right" style="font-size:10px; font-weight:bold; border-top:1px solid #000; border-right:1px solid #000; border-top:1px solid #000; border-bottom:1px solid #000;">'.number_format($totalvalue, 3).'</td>
+                              <td align="right" style="font-size:10px; font-weight:bold; border-top:1px solid #000; border-right:1px solid #000; border-top:1px solid #000; border-bottom:1px solid #000;">'.number_format($totalvalue, 0).'</td>
                            </tr>
                         </table>';
         }
@@ -2157,7 +2158,7 @@ switch ($site_id) {
             //     $total = $rowInvoice['invoice_amount'];
             // }
             $total = $rowInvoice['invoice_amount'];
-            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 3);
+            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 0);
 
             $add_class = '';
             if ($rowInvoice['status'] == 'Cancelled') {
@@ -2232,7 +2233,7 @@ switch ($site_id) {
             //     $total = $rowCancelledInvoice['invoice_amount'];
             // }
             $total = $rowCancelledInvoice['invoice_amount'];
-            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 3);
+            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 0);
 
             $add_class = '';
             if ($rowCancelledInvoice['status'] == 'Cancelled') {
@@ -2367,7 +2368,7 @@ switch ($site_id) {
             //     $total = $rowInvoice['invoice_amount'];
             // }
             $total = $rowInvoice['invoice_amount'];
-            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 3);
+            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 0);
 
             $add_class = '';
             if ($rowInvoice['status'] == 'Cancelled') {
@@ -2442,7 +2443,7 @@ switch ($site_id) {
             //     $total = $rowCancelledInvoice['invoice_amount'];
             // }
             $total = $rowCancelledInvoice['invoice_amount'];
-            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 3);
+            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 0);
 
             $add_class = '';
             if ($rowCancelledInvoice['status'] == 'Cancelled') {
@@ -3824,7 +3825,7 @@ switch ($site_id) {
                 $gst_amount = $integer . "." . $fraction;
             }
 
-            $invoiceAmt = number_format(($row['invoice_amount'] ), 3);
+            $invoiceAmt = number_format(($row['invoice_amount'] ), 0);
             $outstandingInvoiceAmt = number_format($row['invoice_amount']  - $row['receipt_amount'], 3);
             $overallBalanceAmt     = number_format($row['order_amount']  - $row['receipt_amount'], 3);
 
@@ -3837,7 +3838,7 @@ switch ($site_id) {
             ";
         } else {
             $gstAmtRow = '';
-            $invoiceAmt = number_format($row['invoice_amount'] , 3);
+            $invoiceAmt = number_format($row['invoice_amount'] , 0);
             $outstandingInvoiceAmt = number_format($row['invoice_amount'] - $row['receipt_amount'], 3);
             $overallBalanceAmt     = number_format($row['order_amount'] - $row['receipt_amount'], 3);
         }
@@ -4464,6 +4465,8 @@ if ($site_id == 1) {
                 ,cr.credit_note_code
                 ,cr.date
                 ,cr.amount AS credit_note_amount
+                ,cr.apply_digital_signature
+                ,cr.signature_name
                 ,o.cust_address1
                 ,o.cust_address2
                 ,o.cust_address_po_code
@@ -4503,10 +4506,20 @@ if ($site_id == 1) {
         $seal='';
         $signname='';
 
-        $seal='<td width="10%"  style="font-size:15px;"><img src="images/teamseal.jpg" width="60"/></td>';
-        $signname='<td width="25%"  align="left"><img src="images/jassim.jpg" width="80" /></td>';
-        $signname='<td width="25%"  align="left"><img src="images/ibrahim.jpg" width="80" /></td>';
-        $signname='<td width="25%"  align="left"><img src="images/wasim.jpg" width="80" /></td>';
+        if ($company['apply_digital_signature'] == 1) {
+            $seal='<td width="10%"  style="font-size:15px;"><img src="images/teamseal.jpg" width="60"/></td>';
+            if ($company['signature_name'] == "Jassim") {
+                $signname='<td width="25%"  align="left"><img src="images/jassim.jpg" width="80" /></td>';
+            } else if ($company['signature_name'] == "Ibrahim") {
+                $signname='<td width="25%"  align="left"><img src="images/ibrahim.jpg" width="80" /></td>';
+            } else if ($company['signature_name'] == "Wassim") {
+                $signname='<td width="25%"  align="left"><img src="images/wasim.jpg" width="80" /></td>';
+            } else {
+                $signname='<td width="25%"  align="left"></td>';
+            }
+        } else {
+            $seal='<td width="10%"  style="font-size:15px;"></td>';
+        }
 
         $tbl1 = '
         <table border="0" width="100%" style="" cellpadding="4">

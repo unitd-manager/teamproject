@@ -94,7 +94,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
             $total_invoice_amount_summary += $total;
 		}
 
-        $total_invoice_amount_summary_formatted = number_format($total_invoice_amount_summary, 3);
+        $total_invoice_amount_summary_formatted = number_format($total_invoice_amount_summary, 0);
         $trInvoiceSum="
         <tr class='even'>
             <td colspan='6'></td>
@@ -2137,6 +2137,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
         $formAction = "index.php?_topRm=finance&module=enggCrm_invoice&_spAction=generateCreditNoteFormSubmit&showHTML=0";
 
         $expEdit = array('isEditable' => 0);
+        $signArray = array("Jassim", "Ibrahim", "Wassim");
         $text = "
         <form id='portalForm' class='yform columnar creditNoteForm' method='post' action='{$formAction}'>
             <div class=''>{$formObj->getTBRow('', "error_box", '', $expEdit)}</div>
@@ -2155,6 +2156,8 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
             </table>
             {$formObj->getDateRow('Date', 'date', date('Y-m-d'))}
             {$formObj->getTextAreaRow('Note', 'remarks')}
+            {$formObj->getYesNoRRow('Digital Signature', 'apply_digital_signature', '')}
+            {$formObj->getDDRowByArr('Signature Name', 'signature_name', $signArray, '')}
             <input type='hidden' name='order_id' value='{$order_id}' />
         </form>
         ";
@@ -2228,6 +2231,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
 
         $formAction = "index.php?module=enggCrm_invoice&_spAction=editCreditNoteFormSubmit&showHTML=0";
         $expEdit = array('isEditable' => 0);
+        $signArray = array("Jassim", "Ibrahim", "Wassim");
         $text = "
         <form id='editCreditNotePortalForm' class='yform columnar creditNoteForm' method='post' action='{$formAction}'>
             <div class=''>{$formObj->getTBRow('', 'error_box', '', $expEdit)}</div>
@@ -2247,6 +2251,8 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
             </table>
             {$formObj->getDateRow('Date', 'date', $creditNote['date'])}
             {$formObj->getTextAreaRow('Note', 'remarks', $creditNote['remarks'])}
+            {$formObj->getYesNoRRow('Digital Signature', 'apply_digital_signature', $creditNote['apply_digital_signature'])}
+            {$formObj->getDDRowByArr('Signature Name', 'signature_name', $signArray, $creditNote['signature_name'])}
             <input type='hidden' name='credit_note_id' value='{$creditNoteId}' />
             <input type='hidden' name='order_id' value='{$orderId}' />
         </form>

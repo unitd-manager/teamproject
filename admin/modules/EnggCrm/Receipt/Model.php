@@ -1,7 +1,6 @@
 <?
 class CPL_Admin_Modules_EnggCrm_Receipt_Model extends CP_Admin_Modules_EnggCrm_Receipt_Model
 {
-
     /**
      */
     function getGenerateReceiptFormSubmit() {

@@ -840,9 +840,31 @@ cpm.enggCrm.order.loadCompany = function(callback){
     }, 'json');
 }
 
-cpm.enggCrm.order.afterNewCompany = function(data){
+cpm.enggCrm.order.afterNewCompany = function(data, statusText, jqFormObj){
+    var company_id = '';
+    var company_name = '';
+    if (jqFormObj) {
+        company_name = $.trim($(jqFormObj).find('[name=company_name]').val() || '');
+    }
+    if (data && data.returnUrl) {
+        var companyIdMatch = data.returnUrl.match(/[?&](?:record_id|currentId)=([^&]+)/);
+        if (companyIdMatch) {
+            company_id = companyIdMatch[1];
+        }
+    }
+    if (!company_id && data && data.extraParam && data.extraParam.record_id) {
+        company_id = data.extraParam.record_id;
+    }
     Util.closeAllDialogs();
-    cpm.enggCrm.order.loadCompany();
+    cpm.enggCrm.order.loadCompany(function(){
+        if (company_id) {
+            $('#fld_company_id').val(company_id).trigger('change');
+        } else if (company_name) {
+            $('#fld_company_id option').filter(function(){
+                return $.trim($(this).text()) == company_name;
+            }).prop('selected', true).parent().trigger('change');
+        }
+    });
     var mgsalert = 'New company successfully created!';
     var n = noty({
         text: mgsalert,
@@ -947,5 +969,5 @@ $('.editCreditNote').livequery('click', function (e){
             });
         }
     }
-    Util.openFormInDialog.call(this, 'editCreditNotePortalForm', title, 600, 500, expObj);
+    Util.openFormInDialog.call(this, 'editCreditNotePortalForm', title, 1200, 500, expObj);
 });

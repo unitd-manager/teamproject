@@ -2164,6 +2164,8 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
         $order_id        = $fn->getReqParam('order_id');
         $date            = $fn->getPostParam('date');
         $remarks         = $fn->getPostParam('remarks');
+        $apply_digital_signature = $fn->getPostParam('apply_digital_signature');
+        $signature_name  = $fn->getPostParam('signature_name');
         $title_arr       = $fn->getPostParam('title', array());
         $description_arr = $fn->getPostParam('description', array());
         $amount_arr      = $fn->getPostParam('amount', array());
@@ -2195,6 +2197,8 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
             $faCn['credit_note_code'] = $creditNoteCode;
             $faCn['date']             = $date;
             $faCn['remarks']          = $remarks;        
+            $faCn['apply_digital_signature'] = $apply_digital_signature;
+            $faCn['signature_name']  = $signature_name;
             $faCn['order_id']         = $order_id;
             $faCn['site_id']            = $site_id;
             $faCn['creation_date']    = date('Y-m-d H:i:s');
@@ -2261,6 +2265,8 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
         $creditNoteId = $fn->getPostParam('credit_note_id');
         $date = $fn->getPostParam('date');
         $remarks = $fn->getPostParam('remarks');
+        $applyDigitalSignature = $fn->getPostParam('apply_digital_signature');
+        $signatureName = $fn->getPostParam('signature_name');
         $historyIds = $fn->getPostParam('history_id', array(), false, true);
         $invoiceIds = $fn->getPostParam('invoice_id', array(), false, true);
         $titles = $fn->getPostParam('title', array(), false, true);
@@ -2284,7 +2290,9 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
 
         $creditNoteData = array(
             'date' => $date,
-            'remarks' => $remarks
+            'remarks' => $remarks,
+            'apply_digital_signature' => $applyDigitalSignature,
+            'signature_name' => $signatureName
         );
         $creditNoteData = $fn->addModificationDetailsToFieldsArray($creditNoteData, 'credit_note');
         $updateSql = $dbUtil->getUpdateSQLStringFromArray($creditNoteData, 'credit_note', "WHERE credit_note_id = {$creditNoteId}");
