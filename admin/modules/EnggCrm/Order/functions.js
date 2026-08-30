@@ -707,7 +707,11 @@ $("a.newContactLink").livequery('click', function (e){
 });
 
 $("a.editCompanyLink").livequery('click', function (e){
-    var company_id = $('#fld_company_id').val();
+    var company_id = $(this).attr('data-company-id');
+    if (!company_id) {
+        company_id = $('#fld_company_id').val();
+    }
+
     if (!company_id || company_id == '0') {
         e.stopImmediatePropagation();
         $(this).attr('link', '#');
@@ -716,6 +720,8 @@ $("a.editCompanyLink").livequery('click', function (e){
         alert('Please select a company first');
         return false;
     }
+
+    cpm.enggCrm.order.editingCompanyName = $('input[name=company_name]').val();
 
     var url = 'index.php?module=enggCrm_order&_spAction=editCompanyName&showHTML=0&company_id=' + company_id;
     cpm.enggCrm.order.editingCompanyId = company_id;
@@ -876,12 +882,49 @@ cpm.enggCrm.order.afterNewCompany = function(data, statusText, jqFormObj){
     });
 }
 
+cpm.enggCrm.order.refreshCompanyNameDisplay = function(companyId, companyName){
+    var nameToSet = $.trim(companyName || '');
+    if (!nameToSet && companyId) {
+        var selected = $('select[name=company_id], #fld_company_id').find('option[value=' + companyId + ']');
+        if (selected.length) {
+            nameToSet = $.trim(selected.text());
+        }
+    }
+
+    if (!nameToSet && $('form#portalForm input[name=company_name]').length) {
+        nameToSet = $.trim($('form#portalForm input[name=company_name]').val() || '');
+    }
+
+    if (nameToSet) {
+        $('input[name=company_name], input#fld_company_name').val(nameToSet);
+        $('#fld_company_name .value, .row_company_name .value').text(nameToSet);
+        $('div#fld_company_name .value').text(nameToSet);
+    }
+};
+
 cpm.enggCrm.order.afterEditCompany = function(data){
     var company_id = cpm.enggCrm.order.editingCompanyId;
+    var updatedCompanyName = cpm.enggCrm.order.editingCompanyName || '';
+
+    if ($('form#portalForm input[name=company_name]').length) {
+        updatedCompanyName = $.trim($('form#portalForm input[name=company_name]').val() || updatedCompanyName);
+    }
+
+    if (data && data.company_name) {
+        updatedCompanyName = data.company_name;
+    }
+
     Util.closeAllDialogs();
-    cpm.enggCrm.order.loadCompany(function(){
-        $('#fld_company_id').val(company_id).trigger('change');
-    });
+
+    if ($('#fld_company_id').length) {
+        cpm.enggCrm.order.loadCompany(function(){
+            $('#fld_company_id').val(company_id).trigger('change');
+            cpm.enggCrm.order.refreshCompanyNameDisplay(company_id, updatedCompanyName);
+        });
+    } else {
+        cpm.enggCrm.order.refreshCompanyNameDisplay(company_id, updatedCompanyName);
+    }
+
     var mgsalert = 'Company updated successfully!';
     var n = noty({
         text: mgsalert,

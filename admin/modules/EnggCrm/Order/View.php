@@ -124,6 +124,12 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
             $discount = $formObj->getTBRow('Discount', 'discount', $row['discount']);
         }
 
+        $company_id = isset($row['company_id']) ? $row['company_id'] : 0;
+        $companyEditUrl = "index.php?module=enggCrm_order&_spAction=editCompanyName&showHTML=0&company_id={$company_id}";
+        $companyEditLink = "<a class='jqui-dialog-form float_left editCompanyLink' formId='portalForm' title='Edit Company'
+        w=800 href='' link='{$companyEditUrl}' callback='cpm.enggCrm.order.afterEditCompany' data-company-id='{$company_id}'>Edit</a>";
+        $expCompanyName = array('isEditable' => 0, 'notesRight' => $companyEditLink);
+
         $project_code = "<a href='index.php?_topRm=project&module=enggCrm_project&record_id={$row['project_id']}&_action=edit' target='_blank'><u>{$row['project_code']}</u></a>";
         $quote_code = "<a href='index.php?_topRm=project&module=enggCrm_opportunity&record_id={$row['opportunity_id']}&_action=edit' target='_blank'><u>{$row['quote_code']}</u></a>";
 
@@ -141,7 +147,7 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
         ";
 
         $fielset2 = "
-        {$formObj->getTBRow('Company Name', 'company_name', $row['company_name'], $expNoEdit)}
+        {$formObj->getTBRow('Company Name', 'company_name', $row['company_name'], $expCompanyName)}
         {$formObj->getTBRow('Address 1', 'cust_address1', $row['cust_address1'], $expNoEdit)}
         {$formObj->getTBRow('Address 2', 'cust_address2', $row['cust_address2'], $expNoEdit)}
         {$formObj->getTBRow('Country', 'cust_address_country', $row['cust_address_country'], $expNoEdit)}
