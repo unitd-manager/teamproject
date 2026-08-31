@@ -230,5 +230,5 @@ $cpCfg['cp.repPrintLogoInLeft'] = false;
 $cpCfg['cp.assetVersion'] = '20130115';
 
 return $cpCfg;
-
+ 
 
