@@ -218,6 +218,15 @@ class CPL_Admin_Modules_EnggCrm_Order_Model extends CP_Common_Lib_ModuleModelAbs
         }
 
         $fa = $this->getFields();
+        $company_id = (int) $fn->getPostParam('company_id');
+        $companyAddress = $this->getCompanyAddressForOrder($company_id);
+
+        foreach ($companyAddress as $fieldName => $fieldValue) {
+            if (!isset($fa[$fieldName]) || $fa[$fieldName] === '') {
+                $fa[$fieldName] = $fieldValue;
+            }
+        }
+
         $fa['order_status'] = 'New';
         $id = $fn->addRecord($fa);
 
@@ -262,8 +271,44 @@ class CPL_Admin_Modules_EnggCrm_Order_Model extends CP_Common_Lib_ModuleModelAbs
         }
 
         $fa = $this->getFields();
+        $company_id = (int) $fn->getPostParam('company_id');
+        $companyAddress = $this->getCompanyAddressForOrder($company_id);
+
+        foreach ($companyAddress as $fieldName => $fieldValue) {
+            if (!isset($fa[$fieldName]) || $fa[$fieldName] === '') {
+                $fa[$fieldName] = $fieldValue;
+            }
+        }
+
         $id = $fn->saveRecord($fa);
         $fn->returnAfterNewSave($id);
+    }
+
+    function getCompanyAddressForOrder($company_id){
+        $fn = Zend_Registry::get('fn');
+        $company_id = (int) $company_id;
+        $companyAddress = array(
+            'cust_address1' => '',
+            'cust_address2' => '',
+            'cust_address_country' => '',
+            'cust_address_po_code' => ''
+        );
+
+        if ($company_id <= 0) {
+            return $companyAddress;
+        }
+
+        $companyRec = $fn->getRecordRowByID('company', 'company_id', $company_id);
+        if (!$companyRec) {
+            return $companyAddress;
+        }
+
+        $companyAddress['cust_address1'] = isset($companyRec['address_flat']) ? $companyRec['address_flat'] : '';
+        $companyAddress['cust_address2'] = isset($companyRec['address_street']) ? $companyRec['address_street'] : '';
+        $companyAddress['cust_address_country'] = isset($companyRec['address_country']) ? $companyRec['address_country'] : '';
+        $companyAddress['cust_address_po_code'] = isset($companyRec['address_po_code']) ? $companyRec['address_po_code'] : '';
+
+        return $companyAddress;
     }
 
     function getEditCompanyNameSubmit(){
@@ -319,8 +364,8 @@ class CPL_Admin_Modules_EnggCrm_Order_Model extends CP_Common_Lib_ModuleModelAbs
         $fa = $fn->addToFieldsArray($fa, 'cust_address_city');
         $fa = $fn->addToFieldsArray($fa, 'cust_address_area');
         $fa = $fn->addToFieldsArray($fa, 'cust_address_state');
-        $fa = $fn->addToFieldsArray($fa, 'cust_po_code');
-        $fa = $fn->addToFieldsArray($fa, 'cust_country_code');
+        $fa = $fn->addToFieldsArray($fa, 'cust_address_country');
+        $fa = $fn->addToFieldsArray($fa, 'cust_address_po_code');
 
         $fa = $fn->addToFieldsArray($fa, 'shipping_first_name');
         $fa = $fn->addToFieldsArray($fa, 'shipping_address1');

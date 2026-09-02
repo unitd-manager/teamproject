@@ -729,8 +729,8 @@ $("a.editCompanyLink").livequery('click', function (e){
     $(this).attr('link', url);
 });
 
-$('select#fld_company_id').change(function() {
-    var company_id = $(this).val();
+$('select#fld_company_id, select[name=company_id], input[name=company_id], input#fld_company_id').on('change keyup blur', function() {
+    var company_id = cpm.enggCrm.order.getSelectedCompanyId();
     var editCompanyUrl = 'index.php?module=enggCrm_order&_spAction=editCompanyName&showHTML=0';
     if (company_id && company_id != '0') {
         editCompanyUrl += '&company_id=' + company_id;
@@ -738,6 +738,8 @@ $('select#fld_company_id').change(function() {
         editCompanyUrl = '#';
     }
     $('a.editCompanyLink').attr('link', editCompanyUrl);
+
+    cpm.enggCrm.order.refreshCompanyAddress(company_id);
 
     var url = 'index.php?module=enggCrm_contact&_spAction=contactByCompanyJSON&showHTML=0';
     $.get(url, {company_id: company_id}, function (data) {
@@ -828,12 +830,75 @@ cpm.enggCrm.order.triggerCalcForQuantity = function(){
     }
 }
 
+cpm.enggCrm.order.getSelectedCompanyId = function(){
+    var company_id = '';
+    var fieldSelectors = [
+        '#fld_company_id',
+        'select[name=company_id]',
+        'input[name=company_id]',
+        'input#fld_company_id'
+    ];
+
+    $.each(fieldSelectors, function(i, selector){
+        if (!company_id && $(selector).length) {
+            company_id = $.trim($(selector).val() || '');
+        }
+    });
+
+    return company_id;
+};
+
+cpm.enggCrm.order.refreshCompanyAddress = function(company_id){
+    var setAddressValue = function(selector, value){
+        var target = $(selector);
+        if (!target.length) return;
+
+        if (target.is('input, textarea, select')) {
+            target.val(value || '');
+            return;
+        }
+
+        var valueNode = target.find('.value').first();
+        if (valueNode.length) {
+            valueNode.text(value || '');
+        } else {
+            target.text(value || '');
+        }
+    };
+
+    if (!company_id || company_id == '0') {
+        setAddressValue('#fld_cust_address1', '');
+        setAddressValue('#fld_cust_address2', '');
+        setAddressValue('#fld_cust_address_country', '');
+        setAddressValue('#fld_cust_address_po_code', '');
+        setAddressValue('input[name=cust_address1]', '');
+        setAddressValue('input[name=cust_address2]', '');
+        setAddressValue('input[name=cust_address_country]', '');
+        setAddressValue('input[name=cust_address_po_code]', '');
+        return;
+    }
+
+    var url = 'index.php?module=enggCrm_order&_spAction=companyDetailsJSON&showHTML=0';
+    $.get(url, {company_id: company_id}, function (data) {
+        if (!data) return;
+        setAddressValue('#fld_cust_address1', data.cust_address1 || '');
+        setAddressValue('#fld_cust_address2', data.cust_address2 || '');
+        setAddressValue('#fld_cust_address_country', data.cust_address_country || '');
+        setAddressValue('#fld_cust_address_po_code', data.cust_address_po_code || '');
+        setAddressValue('input[name=cust_address1]', data.cust_address1 || '');
+        setAddressValue('input[name=cust_address2]', data.cust_address2 || '');
+        setAddressValue('input[name=cust_address_country]', data.cust_address_country || '');
+        setAddressValue('input[name=cust_address_po_code]', data.cust_address_po_code || '');
+    }, 'json');
+};
+
 cpm.enggCrm.order.loadContactsByCompany = function(){
     var url = 'index.php?module=enggCrm_contact&_spAction=contactByCompanyJSON&showHTML=0';
-    var company_id = $('select[name=company_id]').val();
+    var company_id = cpm.enggCrm.order.getSelectedCompanyId();
     $.get(url, {company_id: company_id}, function (data) {
         $('#fld_contact_id').cp_loadSelect(data);
     }, 'json');
+    cpm.enggCrm.order.refreshCompanyAddress(company_id);
 }
 
 cpm.enggCrm.order.loadCompany = function(callback){

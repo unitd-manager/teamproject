@@ -70,7 +70,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
             </div>
             ";   
 
-            $totalvalueRounded = number_format($total,3);
+            $totalvalueRounded = number_format((float)$total, 3, '.', '');
             $invoice_code = "<a target='_blank' href='index.php?_topRm=finance&module=enggCrm_order&order_id=" . $row['order_id'] . "&_action=edit'>PT/" . substr($row['invoice_code'], 2) . "/" . $row['invoice_code_user'] . "</a>";
 
             $rows .="
@@ -94,7 +94,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
             $total_invoice_amount_summary += $total;
 		}
 
-        $total_invoice_amount_summary_formatted = number_format($total_invoice_amount_summary, 0);
+        $total_invoice_amount_summary_formatted = number_format((float)$total_invoice_amount_summary, 3, '.', '');
         $trInvoiceSum="
         <tr class='even'>
             <td colspan='6'></td>
@@ -222,7 +222,7 @@ class CPL_Admin_Modules_EnggCrm_Invoice_View extends CP_Admin_Modules_EnggCrm_In
             $total = $row['invoice_amount'];
         }
 
-        $totalvalueRounded = number_format($total,3);
+        $totalvalueRounded = number_format((float)$total, 3, '.', '');
 
         $invoice_code = 'PT/' . substr($row['invoice_code'], 2) . '/' . $row['invoice_code_user'];
         $fieldset1 = "

@@ -125,10 +125,19 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
         }
 
         $company_id = isset($row['company_id']) ? $row['company_id'] : 0;
-        $companyEditUrl = "index.php?module=enggCrm_order&_spAction=editCompanyName&showHTML=0&company_id={$company_id}";
-        $companyEditLink = "<a class='jqui-dialog-form float_left editCompanyLink' formId='portalForm' title='Edit Company'
-        w=800 href='' link='{$companyEditUrl}' callback='cpm.enggCrm.order.afterEditCompany' data-company-id='{$company_id}'>Edit</a>";
-        $expCompanyName = array('isEditable' => 0, 'notesRight' => $companyEditLink);
+        $sqlCompany = "
+        SELECT company_id, company_name FROM company
+        ORDER BY company_name
+        ";
+
+        $expComp = array(
+             'detailValue' => $row['company_name']
+            ,'autoSgstModule' => 'enggCrm_company'
+            ,'autoSgstSrchFld' => 'company_name'
+            ,'autoSgstActualFld' => 'company_id'
+            ,'autoSgstActualFldVal' => $company_id
+            ,'autoSgstCallBack' => 'cpm.enggCrm.order.loadContactsByCompany'
+        );
 
         $project_code = "<a href='index.php?_topRm=project&module=enggCrm_project&record_id={$row['project_id']}&_action=edit' target='_blank'><u>{$row['project_code']}</u></a>";
         $quote_code = "<a href='index.php?_topRm=project&module=enggCrm_opportunity&record_id={$row['opportunity_id']}&_action=edit' target='_blank'><u>{$row['quote_code']}</u></a>";
@@ -146,12 +155,17 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
         {$formObj->getTARow('Notes', 'notes', $row['notes'])}
         ";
 
+        $custAddress1 = isset($row['cust_address1']) ? $row['cust_address1'] : (isset($row['address_flat']) ? $row['address_flat'] : '');
+        $custAddress2 = isset($row['cust_address2']) ? $row['cust_address2'] : (isset($row['address_street']) ? $row['address_street'] : '');
+        $custAddressCountry = isset($row['cust_address_country']) ? $row['cust_address_country'] : (isset($row['address_country']) ? $row['address_country'] : '');
+        $custAddressPoCode = isset($row['cust_address_po_code']) ? $row['cust_address_po_code'] : (isset($row['address_po_code']) ? $row['address_po_code'] : '');
+
         $fielset2 = "
-        {$formObj->getTBRow('Company Name', 'company_name', $row['company_name'], $expCompanyName)}
-        {$formObj->getTBRow('Address 1', 'cust_address1', $row['cust_address1'], $expNoEdit)}
-        {$formObj->getTBRow('Address 2', 'cust_address2', $row['cust_address2'], $expNoEdit)}
-        {$formObj->getTBRow('Country', 'cust_address_country', $row['cust_address_country'], $expNoEdit)}
-        {$formObj->getTBRow('Postal Code', 'cust_address_po_code', $row['cust_address_po_code'], $expNoEdit)}
+        {$formObj->getDDRowBySQL('Company Name', 'company_id', $sqlCompany, $company_id, $expComp)}
+        {$formObj->getTBRow('Address 1', 'cust_address1', $custAddress1, $expNoEdit)}
+        {$formObj->getTBRow('Address 2', 'cust_address2', $custAddress2, $expNoEdit)}
+        {$formObj->getTBRow('Country', 'cust_address_country', $custAddressCountry, $expNoEdit)}
+        {$formObj->getTBRow('Postal Code', 'cust_address_po_code', $custAddressPoCode, $expNoEdit)}
         ";
 
         $fielset3 = "
@@ -188,13 +202,15 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
         ";
 
         $newCompUrl = 'index.php?_spAction=new&lnkRoom=enggCrm_companyLink&showHTML=0';
-        $newCompUrl = "<a class='jqui-dialog-form float_left' formId='portalForm' title='New Company'
+        $newCompUrl = "<a class='jqui-dialog-form float_left newCompanyLink' formId='portalForm' title='New Company'
         w=800 href='' link='{$newCompUrl}' callback='cpm.enggCrm.order.afterNewCompany'>New</a>";
+
         $editCompUrl = 'index.php?module=enggCrm_order&_spAction=editCompanyName&showHTML=0';
-           $editCompUrl = "<a class='jqui-dialog-form float_left editCompanyLink' formId='portalForm' title='Edit Company'
-           w=800 href='' link='{$editCompUrl}' callback='cpm.enggCrm.order.afterEditCompany'>Edit</a>";
+        $editCompUrl = "<a class='jqui-dialog-form float_left editCompanyLink' formId='portalForm' title='Edit Company'
+        w=800 href='' link='{$editCompUrl}' callback='cpm.enggCrm.order.afterEditCompany'>Edit</a>";
+
         $expComp  = array(
-               'notesRight'  => $newCompUrl . ' ' . $editCompUrl
+               'notesRight'  => $newCompUrl . '&nbsp;' . $editCompUrl
             ,'rowCls' => 'companyNameWithActions'
             ,'autoSgstModule' => 'enggCrm_company'
             ,'autoSgstSrchFld' => 'company_name'
@@ -236,14 +252,34 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
         $fn = Zend_Registry::get('fn');
         $formObj = Zend_Registry::get('formObj');
 
-        $company_id = $fn->getReqParam('company_id');
+        $company_id = (int) $fn->getReqParam('company_id');
         $company = $fn->getRecordRowByID('company', 'company_id', $company_id);
         $formAction = "index.php?module=enggCrm_order&_spAction=editCompanyNameSubmit&showHTML=0";
 
+        $sqlCompany = "
+        SELECT company_id, company_name FROM company
+        ORDER BY company_name
+        ";
+
+        $editCompUrl = "index.php?module=enggCrm_order&_spAction=editCompanyName&showHTML=0&company_id={$company_id}";
+        $editCompUrl = "<a class='jqui-dialog-form float_left editCompanyLink' formId='portalForm' title='Edit Company'
+        w=800 href='' link='{$editCompUrl}' callback='cpm.enggCrm.order.afterEditCompany' data-company-id='{$company_id}'>Edit</a>";
+
+        $expComp  = array(
+             'notesRight'  => $editCompUrl
+            ,'rowCls' => 'companyNameWithActions'
+            ,'autoSgstModule' => 'enggCrm_company'
+            ,'autoSgstSrchFld' => 'company_name'
+            ,'autoSgstActualFld' => 'company_id'
+            ,'autoSgstActualFldVal' => $company_id
+            ,'autoSgstCallBack' => 'cpm.enggCrm.order.loadContactsByCompany'
+        );
+
         return "
         <form id='portalForm' class='yform columnar' method='post' action='{$formAction}'>
-            {$formObj->getTBRow('Company Name', 'company_name', $company['company_name'])}
+            {$formObj->getDDRowBySQL('Company Name', 'company_id', $sqlCompany, $company_id, $expComp)}
             <input type='hidden' name='company_id' value='{$company_id}' />
+            <input type='hidden' name='company_name' value='{$company['company_name']}' />
         </form>
         ";
     }
@@ -778,8 +814,8 @@ switch ($site_id) {
             $countCheck++;
         }
 
-        $totalvalue        = round($totalvalue - $company['discount'], 0);
-        $amount_in_words   = $fn->getConvertNumber($totalvalue);
+        $totalvalue        = round($totalvalue - $company['discount'], 3);
+        $amount_in_words   = $fn->getConvertNumber(round($totalvalue, 0));
       
         $discountRow = '';
         if($company['discount'] > 0) {
@@ -804,7 +840,7 @@ switch ($site_id) {
             $tbl3 = $tbl3.''.$discountRow.'<tr>
                               <td colspan="2" style="font-size:10px; border:1px solid #000;border-right:1px solid #000;">Invoice Amount In '.$currency.' : '.$amount_in_words.'</td>
                             
-                              <td align="right" colspan="4" style="font-size:10px; font-weight:bold; border:1px solid #000;">'.number_format($totalvalue, 0).'</td>
+                              <td align="right" colspan="4" style="font-size:10px; font-weight:bold; border:1px solid #000;">'.number_format($totalvalue, 3, '.', '').'</td>
                           </tr>
                          
                           
@@ -813,7 +849,7 @@ switch ($site_id) {
             $tbl3 = $tbl3.''.$discountRow.'<tr>
                               <td align="right" colspan="2" style="font-size:10px; font-weight:bold; border:1px solid #000;border-right:1px solid #000;">Invoice Amount In '.$currency.' : '.$amount_in_words.'</td>
                               <td colspan="3" align="right" style="font-size:10px; border-top:1px solid #000;border-right:1px solid #000; border-top:1px solid #000; border-bottom:1px solid #000; font-weight:bold;">Total Excluding Gst</td>
-                              <td align="right" style="font-size:10px; font-weight:bold; border-top:1px solid #000; border-right:1px solid #000; border-top:1px solid #000; border-bottom:1px solid #000;">'.number_format($totalvalue, 0).'</td>
+                              <td align="right" style="font-size:10px; font-weight:bold; border-top:1px solid #000; border-right:1px solid #000; border-top:1px solid #000; border-bottom:1px solid #000;">'.number_format($totalvalue, 3, '.', '').'</td>
                            </tr>
                         </table>';
         }
@@ -2164,7 +2200,7 @@ switch ($site_id) {
             //     $total = $rowInvoice['invoice_amount'];
             // }
             $total = $rowInvoice['invoice_amount'];
-            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 0);
+            $totalvalueRounded = number_format((float)($total - $rowInvoice['discount']), 3, '.', '');
 
             $add_class = '';
             if ($rowInvoice['status'] == 'Cancelled') {
@@ -2239,7 +2275,7 @@ switch ($site_id) {
             //     $total = $rowCancelledInvoice['invoice_amount'];
             // }
             $total = $rowCancelledInvoice['invoice_amount'];
-            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 0);
+            $totalvalueRounded = number_format((float)($total - $rowInvoice['discount']), 3, '.', '');
 
             $add_class = '';
             if ($rowCancelledInvoice['status'] == 'Cancelled') {
@@ -2374,7 +2410,7 @@ switch ($site_id) {
             //     $total = $rowInvoice['invoice_amount'];
             // }
             $total = $rowInvoice['invoice_amount'];
-            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 0);
+            $totalvalueRounded = number_format((float)($total - $rowInvoice['discount']), 3, '.', '');
 
             $add_class = '';
             if ($rowInvoice['status'] == 'Cancelled') {
@@ -2449,7 +2485,7 @@ switch ($site_id) {
             //     $total = $rowCancelledInvoice['invoice_amount'];
             // }
             $total = $rowCancelledInvoice['invoice_amount'];
-            $totalvalueRounded = number_format($total - $rowInvoice['discount'], 0);
+            $totalvalueRounded = number_format((float)($total - $rowInvoice['discount']), 3, '.', '');
 
             $add_class = '';
             if ($rowCancelledInvoice['status'] == 'Cancelled') {
@@ -3808,8 +3844,8 @@ switch ($site_id) {
 
         $row['order_amount'] = $row['order_amount'] + $row['ot_amount'] + $row['ph_amount'] + $row['other_amount'];
 
-        $orderAmt   = number_format($row['order_amount'], 3);
-        $receiptAmt = number_format($row['receipt_amount'] ,3);
+        $orderAmt   = number_format((float)$row['order_amount'], 3, '.', '');
+        $receiptAmt = number_format((float)$row['receipt_amount'], 3, '.', '');
 
         if ($row['gst_amount']) {
             /* Taking two decimal values for gst amount */
@@ -3831,11 +3867,11 @@ switch ($site_id) {
                 $gst_amount = $integer . "." . $fraction;
             }
 
-            $invoiceAmt = number_format(($row['invoice_amount'] ), 0);
-            $outstandingInvoiceAmt = number_format($row['invoice_amount']  - $row['receipt_amount'], 3);
-            $overallBalanceAmt     = number_format($row['order_amount']  - $row['receipt_amount'], 3);
+            $invoiceAmt = number_format((float)$row['invoice_amount'], 3, '.', '');
+            $outstandingInvoiceAmt = number_format((float)($row['invoice_amount'] - $row['receipt_amount']), 3, '.', '');
+            $overallBalanceAmt     = number_format((float)($row['order_amount'] - $row['receipt_amount']), 3, '.', '');
 
-            $gst_amount = number_format($gst_amount, 3);
+            $gst_amount = number_format((float)$gst_amount, 3, '.', '');
             $gstAmtRow = "
             <tr>
                 <td class='totalOrderAmountLabel'>TOTAL GST AMOUNT</td>
@@ -3844,9 +3880,9 @@ switch ($site_id) {
             ";
         } else {
             $gstAmtRow = '';
-            $invoiceAmt = number_format($row['invoice_amount'] , 0);
-            $outstandingInvoiceAmt = number_format($row['invoice_amount'] - $row['receipt_amount'], 3);
-            $overallBalanceAmt     = number_format($row['order_amount'] - $row['receipt_amount'], 3);
+            $invoiceAmt = number_format((float)$row['invoice_amount'], 3, '.', '');
+            $outstandingInvoiceAmt = number_format((float)($row['invoice_amount'] - $row['receipt_amount']), 3, '.', '');
+            $overallBalanceAmt     = number_format((float)($row['order_amount'] - $row['receipt_amount']), 3, '.', '');
         }
 
         $rows = "

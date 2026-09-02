@@ -1422,7 +1422,7 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
             }
         }
 
-        $total_cost = $total_invoice_amount - $total_invoice_amount_minus;
+        $total_cost = round($total_invoice_amount - $total_invoice_amount_minus, 3);
 
         /* Update quote status */
         $faInvoice = array();
@@ -1659,7 +1659,7 @@ $discount = number_format((float)$fn->getPostParam('discount'), 2, '.', '');
 
                 /* Update quote status */
                 $faInvoice = array();
-                $faInvoice['invoice_amount'] = $total_invoice_amount;
+                $faInvoice['invoice_amount'] = round($total_invoice_amount, 3);
                 $fn->saveRecord($faInvoice, 'invoice', 'invoice_id', $invoice_id);
 
                 $count++;
