@@ -89,6 +89,7 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
 
         $expStatus = array('sqlType' => 'OneField', 'isEditable' => 0);
         $expNoEdit = array('isEditable' => 0);
+        $expCustAddress = array('isEditable' => 1);
 
         $sqlCountry = getCPModelObj('common_geoCountry')->getCountryDDSQL();
         $expCountry = array('detailValue' => $row['shipping_address_country']);
@@ -159,13 +160,14 @@ class CPL_Admin_Modules_EnggCrm_Order_View extends CP_Admin_Modules_EnggCrm_Orde
         $custAddress2 = isset($row['cust_address2']) ? $row['cust_address2'] : (isset($row['address_street']) ? $row['address_street'] : '');
         $custAddressCountry = isset($row['cust_address_country']) ? $row['cust_address_country'] : (isset($row['address_country']) ? $row['address_country'] : '');
         $custAddressPoCode = isset($row['cust_address_po_code']) ? $row['cust_address_po_code'] : (isset($row['address_po_code']) ? $row['address_po_code'] : '');
+        $expCustCountry = array('detailValue' => $custAddressCountry);
 
         $fielset2 = "
         {$formObj->getDDRowBySQL('Company Name', 'company_id', $sqlCompany, $company_id, $expComp)}
-        {$formObj->getTBRow('Address 1', 'cust_address1', $custAddress1, $expNoEdit)}
-        {$formObj->getTBRow('Address 2', 'cust_address2', $custAddress2, $expNoEdit)}
-        {$formObj->getTBRow('Country', 'cust_address_country', $custAddressCountry, $expNoEdit)}
-        {$formObj->getTBRow('Postal Code', 'cust_address_po_code', $custAddressPoCode, $expNoEdit)}
+        {$formObj->getTBRow('Address 1', 'cust_address1', $custAddress1, $expCustAddress)}
+        {$formObj->getTBRow('Address 2', 'cust_address2', $custAddress2, $expCustAddress)}
+        {$formObj->getDDRowBySQL('Country', 'cust_address_country', $sqlCountry, $custAddressCountry, $expCustCountry)}
+        {$formObj->getTBRow('Postal Code', 'cust_address_po_code', $custAddressPoCode, $expCustAddress)}
         ";
 
         $fielset3 = "
