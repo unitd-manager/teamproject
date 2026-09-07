@@ -688,9 +688,6 @@ switch ($site_id) {
                         <td width="34%"></td>
                     </tr>
                                 <tr>
-                                    <td width="75%" style="font-size:10px;line-height:16px;">'.$company['first_name'].'</td>
-                                </tr>
-                                <tr>
                                     <td width="100%" style="font-size:10px;line-height:16px;"> '.$company['company_name'].'</td>
                                 </tr>
                                 <tr>
