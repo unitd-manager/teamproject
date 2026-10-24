@@ -814,7 +814,7 @@ switch ($site_id) {
         }
 
         $totalvalue        = round($totalvalue - $company['discount'], 3);
-        $amount_in_words   = $fn->getConvertNumber(round($totalvalue, 0));
+        $amount_in_words   = $fn->getConvertNumber($totalvalue);
       
         $discountRow = '';
         if($company['discount'] > 0) {
